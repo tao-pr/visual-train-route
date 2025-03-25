@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Berlin Trains Map</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+	<style>
+		body { margin: 0; font-family: sans-serif; }
+		#map { height: 100vh; }
+	</style>
+</head>
+<body>
+	<div id="map"></div>
+
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	<script>
+		const map = L.map('map').setView([52.5200, 13.4050], 11);
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '&copy; OpenStreetMap contributors'
+		}).addTo(map);
+
+		const lines = {{.Lines}};
+		const stationMap = {};
+
+		console.log('lines = ', lines)
+
+		lines.forEach(line => {
+			console.log(line)
+			const coords = [];
+
+			line.stations.forEach(station => {
+
+				// Station label (line names)
+				const key = station.lat.toFixed(6) + "," + station.lng.toFixed(6);
+				if (!stationMap[key]) {
+					stationMap[key] = {
+						lat: station.lat,
+						lng: station.lng,
+						lines: new Set()
+					};
+				}
+				stationMap[key].lines.add(line.name);
+
+				// Station circles
+				const latlng = [station.lat, station.lng];
+				coords.push(latlng);
+
+				L.circle(latlng, {
+					color: line.color,
+					fillColor: line.color,
+					fillOpacity: 0.6,
+					radius: 100
+				})
+				.bindPopup(`<strong>${station.name}</strong><br>${line.name}`)
+				.addTo(map);
+			});
+
+			// Connecting lines between stations
+			if (coords.length > 1) {
+				L.polyline(coords, {
+					color: line.color,
+					weight: 7,
+					opacity: 1.0
+				}).addTo(map);
+			}
+		});
+
+	// Add text labels for each unique station
+	Object.values(stationMap).forEach(station => {
+		const label = Array.from(station.lines).join(" / ");
+		L.marker([station.lat, station.lng], {
+			icon: L.divIcon({
+				className: "station-label",
+				html: `<div class="label">${label}</div>`,
+				iconSize: [0, 0], // No image
+			}),
+			interactive: false
+		}).addTo(map);
+	});
+	</script>
+</body>
+</html>
