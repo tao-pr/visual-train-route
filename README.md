@@ -22,3 +22,7 @@ go run main.go
 
 Then access the URL `http://127.0.0.1:3000/` in your browser.
 
+![myfile](media/f1.gif)
+
+![myfile](media/f3.gif)
+
