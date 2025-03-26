@@ -44,6 +44,10 @@
 			<input type="text" id="location-input" placeholder="Search for a place..." />
 			<button type="submit">Go</button>
 		</form>
+		<br>
+	<label for="line-select">Jump to train line:</label>
+	<input list="line-options" id="line-select" placeholder="e.g. RE1 or S1" />
+	<datalist id="line-options"></datalist>
 	</div>
 	<div id="map"></div>
 
@@ -159,6 +163,49 @@
 			alert("Location not found.");
 		}
 	});
+
+	/**
+	 * Train Line search bar
+	 */
+	const datalist = document.getElementById("line-options");
+	lines.forEach(line => {
+		const opt = document.createElement("option");
+		opt.value = line.name;
+		datalist.appendChild(opt);
+	});
+
+	// On train line selected
+	document.getElementById("line-select").addEventListener("change", () => {
+		const selectedLineName = document.getElementById("line-select").value.trim();
+		if (!selectedLineName) return;
+
+		const selectedLine = lines.find(line => line.name === selectedLineName);
+		if (!selectedLine || !selectedLine.stations || selectedLine.stations.length === 0) {
+			alert("Train line not found.");
+			return;
+		}
+
+		navigateStations(selectedLine.stations, 0)
+	});
+
+	function sleep(duration){
+		return new Promise((resolve) => setTimeout(resolve, duration))
+	}
+
+	function navigateStations(stations, i){
+		if (i >= stations.length)
+			return;
+		const station = stations[i]
+		const latlng = [station.lat, station.lng];
+			map.setView(latlng, 14);
+			L.popup()
+				.setLatLng(latlng)
+				.setContent(`<strong>${station.name}</strong><br>(${station.name})`)
+				.openOn(map);
+
+		// Wait for sometime and navigate next station
+		sleep(1200).then(() => navigateStations(stations, i+1))
+	}
 
 	</script>
 </body>
