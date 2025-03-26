@@ -2,7 +2,7 @@
 
 Bring train route onto the map.
 
-## Pre-Run
+## Pre-Run (Optional)
 
 You can regenerate all Berlin station geocodes by running the following script.
 
@@ -11,6 +11,8 @@ go run scripts/clean.go
 ```
 
 It will read CSV files from `data/stations-berlin`, apply geocoding, and write the output into `data/berlin.csv`
+
+> NOTE: Some S3 train stations have geolocations messed up with geocoder service, and I have `data/berlin.csv` already corrected by hand.
 
 ## Run
 
